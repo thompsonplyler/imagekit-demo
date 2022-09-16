@@ -46,7 +46,7 @@ While there are a host of ways to configure `dotenv`, and I urge you to [read th
 Different deployment sites have different rules for passing environment variables. On Heroku, you will want to add secret information to Project --> Settings Tab --> Config Vars
 ![](https://i.imgur.com/ClBiaJo.png)
 
-Once there, environment variables can be retrieved with a similar syntax particular to Heroku, which is substituting `APP_CONFIG` for `ENV`.
+Once there, environment variables can be retrieved with a similar syntax particular to Heroku, which is substituting `process.env` for `ENV`.
 
 ```ruby
 ImageKitIo.configure do |config|
@@ -57,12 +57,14 @@ ImageKitIo.configure do |config|
     end
 
     if Rails.env.production?
-      config.public_key = APP_CONFIG["IK_PUBLIC_KEY"]
-      config.private_key = APP_CONFIG["IK_PRIVATE_KEY"]
-      config.url_endpoint = APP_CONFIG["IK_HOST"]
+      config.public_key = process.env.IK_PUBLIC_KEY
+      config.private_key = process.env.IK_PRIVATE_KEY
+      config.url_endpoint = process.env.IK_HOST
     end
     config.service = :carrierwave
   end
 ```
+
+- [Heroku documentation on Config Vars](https://devcenter.heroku.com/articles/config-vars)
 
 Again, _different deployment environments will follow different patterns for using secure variables, so you may need to check on your specific environment's rules._
