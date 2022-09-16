@@ -35,6 +35,7 @@ function App() {
   useEffect(() => {
     if (form.values.file) {
       let file = form.values.file;
+      setFileValue(file);
       file = URL.createObjectURL(file);
       setShowImage(file);
       console.log(
