@@ -19,3 +19,50 @@ The response ImageKit provides the information we will actually store in our dat
 ### Using a different component library
 
 This project uses the open-source [Mantine component library](https://mantine.dev/) on the frontend, but the logic underpinning everything should match if you are using Bootstrap, Material UI, or another component library. For an example of a totally generic React page that handles data from a file input, check out [this gist I wrote for that purpose.](https://gist.github.com/thompsonplyler/61499ea7334b0d81025393a7b8a5e8f1)
+
+## Your API Key and Environment Setup
+
+ImageKit requires a trio of values in order to authorize a data transaction, but if you observe the files above, you'll notice those values are nowhere to be found!
+
+Furthermore, the `imagekit` gem requires that you store those values in `config/initializers/imagekitio.rb`, but in that folder you can clearly see the relevant values are nowhere to be found!
+
+```ruby
+ImageKitIo.configure do |config|
+    if Rails.env.development?
+      config.public_key = ENV["IK_PUBLIC_KEY"]
+      config.private_key = ENV["IK_PRIVATE_KEY"]
+      config.url_endpoint = ENV["IK_HOST"]
+    end
+    config.service = :carrierwave
+  end
+```
+
+What gives?
+
+What you're seeing is the magic of the `dotenv-rails` gem, which you can see in the project's `Gemfile`.
+
+While there are a host of ways to configure `dotenv`, and I urge you to [read the documentation](https://github.com/bkeepers/dotenv), to read an environment file locally, which is where you'd store your API keys, you merely need to add the values to a `.env` file in your root directory. Those values will be automatically added to the ENV variable for use in your app.
+
+Different deployment sites have different rules for passing environment variables. On Heroku, you will want to add secret information to Project --> Settings Tab --> Config Vars
+![](https://i.imgur.com/ClBiaJo.png)
+
+Once there, environment variables can be retrieved with a similar syntax particular to Heroku, which is substituting `APP_CONFIG` for `ENV`.
+
+```ruby
+ImageKitIo.configure do |config|
+    if Rails.env.development?
+      config.public_key = ENV["IK_PUBLIC_KEY"]
+      config.private_key = ENV["IK_PRIVATE_KEY"]
+      config.url_endpoint = ENV["IK_HOST"]
+    end
+
+    if Rails.env.production?
+      config.public_key = APP_CONFIG["IK_PUBLIC_KEY"]
+      config.private_key = APP_CONFIG["IK_PRIVATE_KEY"]
+      config.url_endpoint = APP_CONFIG["IK_HOST"]
+    end
+    config.service = :carrierwave
+  end
+```
+
+Again, _different deployment environments will follow different patterns for using secure variables, so you may need to check on your specific environment's rules._
